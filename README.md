@@ -1,1 +1,1 @@
-# mpi_omp_tsp
+Traveling salesman problem parallelized using both MPI and OMP
