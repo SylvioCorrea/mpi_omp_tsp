@@ -31,7 +31,7 @@ int best_paths[OMP_THREADS][N_OF_CS];
 int debug_n = 0;
 
 void print_debug() {
-    printf("print debug %d\n", debug_n);
+    printf("[%d]print debug %d\n", my_rank, debug_n);
     debug_n++;
 }
 
