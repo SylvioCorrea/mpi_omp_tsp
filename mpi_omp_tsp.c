@@ -237,9 +237,9 @@ int main(int argc, char **argv) {
 	cities[2].name = "c"; cities[2].x = 176; cities[2].y = 386;
 	cities[3].name = "d"; cities[3].x = 472; cities[3].y = 1000;
 	cities[4].name = "e"; cities[4].x = 110; cities[4].y = 57;
+	/*
 	cities[5].name = "f"; cities[5].x = 790; cities[5].y = 166;
 	cities[6].name = "g"; cities[6].x = 600; cities[6].y = 532;
-	/*
 	cities[7].name = "h"; cities[7].x = 398; cities[7].y = 40;
 	cities[8].name = "i"; cities[8].x = 83; cities[8].y = 720;
 	cities[9].name = "j"; cities[9].x = 829; cities[9].y = 627;
