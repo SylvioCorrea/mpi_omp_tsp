@@ -6,7 +6,7 @@
 #include "mpi.h"
 #include "tsp_mpi_headers.h"
 
-#define OMP_THREADS 7
+#define OMP_THREADS 5
 
 //These define tags for mpi communication
 #define WORK	1
@@ -28,7 +28,12 @@ double distance_m[N_OF_CS][N_OF_CS];
 double best_lengths[OMP_THREADS];
 int best_paths[OMP_THREADS][N_OF_CS];
 
+int debug_n = 0;
 
+void print_debug() {
+    printf("print debug %d\n", debug_n);
+    debug_n++;
+}
 
 void master_routine(Message *message_ptr, int best_path[],
                     int path_size, int *burst) {
@@ -131,7 +136,7 @@ void thread_setup(int path[], int path_size, int available[]) {
         //Let another thread finish this job.
         #pragma omp task firstprivate(copy_avail, path_copy)
         {
-            printf("[%d] starting thread (%d)", my_rank, omp_get_thread_num());
+            printf("[%d] starting thread (%d)\n", my_rank, omp_get_thread_num());
             tsp(path_copy, path_size, copy_avail);
         }
     } else {
@@ -161,6 +166,7 @@ void thread_setup(int path[], int path_size, int available[]) {
 //buffer and resturns 1. Otherwise returns 0.
 int slave_routine(Message *msg_ptr) {
     //Mark all unavailable cities
+	printf("[%d] slave routine start\n", my_rank);
 	int i;
 	for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
 	    available[msg_ptr->path[i]] = 0;
@@ -169,7 +175,7 @@ int slave_routine(Message *msg_ptr) {
 	for(i=0; i<OMP_THREADS; i++) {
 	    best_lengths[i] = msg_ptr->best_length;
 	}
-	
+	print_debug();
 	//int path_copy[N_OF_CS];
 	//copy_path(msg_ptr->path, path_copy);
 	
@@ -180,14 +186,14 @@ int slave_routine(Message *msg_ptr) {
 	    {
 	        thread_setup(msg_ptr->path, N_OF_CS - MPI_GRAIN, available);
 	    }
-	    
+	    print_debug();
 	    //Cities already on the path were not marked as available again
 	    //during tsp_aux recursion. This must be corrected here.
 	    for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
 	        available[msg_ptr->path[i]] = 1;
 	    }
 	}//All threads done.
-	
+	print_debug();
 	//Check results of each thread.
 	int best = -1;
 	for(i=0; i<OMP_THREADS; i++) {
@@ -197,6 +203,7 @@ int slave_routine(Message *msg_ptr) {
             msg_ptr->best_length = best_lengths[i];
         }
     }
+    print_debug();
     if(best!=-1) {
         //Store best path if found.
         copy_path(&(best_paths[i][0]), msg_ptr->path);
@@ -316,6 +323,7 @@ int main(int argc, char **argv) {
 	
 	} else {
 	//================slave=======================
+	    printf("[%d] start\n", my_rank);
 	    int j;
 	    for(i=0; i<OMP_THREADS; i++) {
 	        for(j=0; j<N_OF_CS; j++) {
