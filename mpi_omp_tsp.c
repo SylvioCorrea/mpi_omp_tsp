@@ -25,7 +25,7 @@ double distance_m[N_OF_CS][N_OF_CS];
 
 //Each omp thread will use one value of best_lengths
 //and one row of best_paths.
-int best_lengths[OMP_THREADS];
+double best_lengths[OMP_THREADS];
 int best_paths[OMP_THREADS][N_OF_CS];
 
 
@@ -93,7 +93,7 @@ void tsp(int path[], int path_size, int available[]) {
         double path_length = calc_length(path, distance_m);
         if(path_length < best_lengths[th_id]) {
             //Update best path and length for this thread
-            path_lengths[th_id] = path_length;
+            best_lengths[th_id] = path_length;
             copy_path(path, &(best_paths[th_id][0]));
         }
     } else {
@@ -190,15 +190,15 @@ int slave_routine(Message *msg_ptr) {
 	//Check results of each thread.
 	int best = -1;
 	for(i=0; i<OMP_THREADS; i++) {
-        if(best_legths[i] < message->best_length) {
+        if(best_lengths[i] < msg_ptr->best_length) {
             //Found a better result.
             best = i;
-            message->best_length = best_lengths[i];
+            msg_ptr->best_length = best_lengths[i];
         }
     }
     if(best!=-1) {
         //Store best path if found.
-        copy_path(&(best_paths[i][0]), message->path);
+        copy_path(&(best_paths[i][0]), msg_ptr->path);
         return 1;
     } else {
         return 0;
@@ -270,7 +270,7 @@ int main(int argc, char **argv) {
         //The city is marked as unavailable.
 		available[0] = 0;
         int burst = 1;
-        master_routine(&message, available, best_path, 1, &burst);
+        master_routine(&message, best_path, 1, &burst);
         
         //All work sent. Slaves are blocked on send with their last results.
         //Receive and send final message.
@@ -317,8 +317,6 @@ int main(int argc, char **argv) {
 	            //Start all paths with placeholder -1.
 	            best_paths[i][j] = -1;
 	        }
-	        //S
-	        best_paths[i] = DBL_MAX; 
 	    }
 	    while(1) {
 		    MPI_Recv(&message, sizeof(Message), MPI_BYTE, 0,
