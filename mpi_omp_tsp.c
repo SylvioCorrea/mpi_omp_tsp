@@ -103,6 +103,7 @@ void tsp(int path[], int path_size, int available[]) {
         }
     } else {
         int i;
+        printf("(%d) else\n", omp_get_thread_num());
         //Finds the next city from the list of
         //cities which haven't been visited yet
         for(i=0; i<N_OF_CS; i++) {
@@ -132,7 +133,7 @@ void thread_setup(int path[], int path_size, int available[]) {
         int copy_avail[N_OF_CS];
         copy_path(available, copy_avail);
         int path_copy[N_OF_CS];
-        copy_path(path_copy, path);
+        copy_path(path, path_copy);
         //Let another thread finish this job.
         #pragma omp task firstprivate(copy_avail, path_copy)
         {
