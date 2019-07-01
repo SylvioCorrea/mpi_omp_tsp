@@ -129,7 +129,7 @@ void thread_setup(int path[], int path_size, int available[]) {
         int path_copy[N_OF_CS];
         copy_path(path_copy, path);
         //Let another thread finish this job.
-        #pragma omp task privatefirst(copy_avail, path_copy)
+        #pragma omp task firstprivate(copy_avail, path_copy)
         {
             tsp(path_copy, path_size, copy_avail);
         }
@@ -173,7 +173,7 @@ int slave_routine(Message *msg_ptr) {
 	//copy_path(msg_ptr->path, path_copy);
 	
 	//Work on permutations. OMP time.
-	#pragma omp parallel num_of_threads(OMP_THREADS)
+	#pragma omp parallel num_threads(OMP_THREADS)
 	{
 	    #pragma omp single
 	    {
