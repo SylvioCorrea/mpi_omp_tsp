@@ -210,6 +210,7 @@ int slave_routine(Message *msg_ptr) {
         }
     }
     print_debug();
+    printf("best thread: %d\n", best);
     if(best!=-1) {
         //Store best path if found.
         copy_path(&(best_paths[i][0]), msg_ptr->path);
