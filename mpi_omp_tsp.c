@@ -213,7 +213,7 @@ int slave_routine(Message *msg_ptr) {
     printf("best thread: %d\n", best);
     if(best!=-1) {
         //Store best path if found.
-        copy_path(&(best_paths[i][0]), msg_ptr->path);
+        copy_path(&(best_paths[best][0]), msg_ptr->path);
         return 1;
     } else {
         return 0;
