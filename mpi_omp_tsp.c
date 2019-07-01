@@ -131,6 +131,7 @@ void thread_setup(int path[], int path_size, int available[]) {
         //Let another thread finish this job.
         #pragma omp task firstprivate(copy_avail, path_copy)
         {
+            printf("[%d] starting thread (%d)", my_rank, omp_get_thread_num());
             tsp(path_copy, path_size, copy_avail);
         }
     } else {
