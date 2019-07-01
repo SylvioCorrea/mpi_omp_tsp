@@ -186,12 +186,13 @@ int slave_routine(Message *msg_ptr) {
 	    #pragma omp single
 	    {
 	        thread_setup(msg_ptr->path, N_OF_CS - MPI_GRAIN, available);
-	    }
-	    print_debug();
-	    //Cities already on the path were not marked as available again
-	    //during tsp_aux recursion. This must be corrected here.
-	    for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
-	        available[msg_ptr->path[i]] = 1;
+	    
+	        print_debug();
+	        //Cities already on the path were not marked as available again
+	        //during tsp_aux recursion. This must be corrected here.
+	        for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
+	            available[msg_ptr->path[i]] = 1;
+	        }
 	    }
 	}//All threads done.
 	print_debug();
