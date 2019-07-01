@@ -94,6 +94,7 @@ void tsp(int path[], int path_size, int available[]) {
     //If the path contains a suficient number of cities. Let another thread
     //perform the remeining permutations.
     if(path_size == N_OF_CS) {
+        print_int_arr(path);
         int th_id = omp_get_thread_num();
         double path_length = calc_length(path, distance_m);
         if(path_length < best_lengths[th_id]) {
