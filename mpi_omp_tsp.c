@@ -17,13 +17,14 @@
 int proc_n;
 int my_rank;
 MPI_Status status;
-
+int jobs;
 
 City cities[N_OF_CS];
 int available[N_OF_CS];
 double distance_m[N_OF_CS][N_OF_CS];
 
-//These will be used exclusively by each omp thread.
+//Each omp thread will use one value of best_lengths
+//and one row of best_paths.
 int best_lengths[OMP_THREADS];
 int best_paths[OMP_THREADS][N_OF_CS];
 
@@ -90,7 +91,7 @@ void tsp(int path[], int path_size, int available[]) {
     if(path_size == N_OF_CS) {
         int th_id = omp_get_thread_num();
         double path_length = calc_length(path, distance_m);
-        if(path_length < path_lengths[th_id]) {
+        if(path_length < best_lengths[th_id]) {
             //Update best path and length for this thread
             path_lengths[th_id] = path_length;
             copy_path(path, &(best_paths[th_id][0]));
@@ -120,17 +121,17 @@ void tsp(int path[], int path_size, int available[]) {
 //Preprocessing before sending final tasks for each thread
 void thread_setup(int path[], int path_size, int available[]) {
     //If the path contains a suficient number of cities. Let another thread
-    //perform the remeining permutations.
-    if(path_size == N_OF_CITIES - OMP_GRAIN) {
+    //perform the remaining permutations.
+    if(path_size == N_OF_CS - OMP_GRAIN) {
         //Copy current built path and available cities.
         int copy_avail[N_OF_CS];
         copy_path(available, copy_avail);
-        int copy_path[N_OF_CS];
-        copy_path(copy_path, path);
+        int path_copy[N_OF_CS];
+        copy_path(path_copy, path);
         //Let another thread finish this job.
-        #pragma omp task privatefirst(copy_avail, copy_path)
+        #pragma omp task privatefirst(copy_avail, path_copy)
         {
-            tsp(copy_path, path_size, copy_avail);
+            tsp(path_copy, path_size, copy_avail);
         }
     } else {
         int i;
@@ -159,24 +160,24 @@ void thread_setup(int path[], int path_size, int available[]) {
 //buffer and resturns 1. Otherwise returns 0.
 int slave_routine(Message *msg_ptr) {
     //Mark all unavailable cities
+	int i;
 	for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
 	    available[msg_ptr->path[i]] = 0;
 	}
-	int i;
 	//Update best found length for everyone according to the message of MPI master.
 	for(i=0; i<OMP_THREADS; i++) {
 	    best_lengths[i] = msg_ptr->best_length;
 	}
 	
-	int copy_path[N_OF_CS];
-	copy_path(msg_ptr->path, copy_path);
+	//int path_copy[N_OF_CS];
+	//copy_path(msg_ptr->path, path_copy);
 	
 	//Work on permutations. OMP time.
 	#pragma omp parallel num_of_threads(OMP_THREADS)
 	{
 	    #pragma omp single
 	    {
-	        thread_setup(copy_path, N_OF_CS - MPI_GRAIN, available);
+	        thread_setup(msg_ptr->path, N_OF_CS - MPI_GRAIN, available);
 	    }
 	    
 	    //Cities already on the path were not marked as available again
@@ -197,7 +198,7 @@ int slave_routine(Message *msg_ptr) {
     }
     if(best!=-1) {
         //Store best path if found.
-        copy_path(&(best_paths[i]), message->path);
+        copy_path(&(best_paths[i][0]), message->path);
         return 1;
     } else {
         return 0;

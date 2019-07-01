@@ -38,9 +38,8 @@ double calc_length(int path[], double distance_m[N_OF_CS][N_OF_CS]);
 void print_distance_m(double *distance_m, int n);
 void print_distance_m2(double distance_m[N_OF_CS][N_OF_CS]);
 
-void master_routine(Message *message_ptr, int available[],
-                    int best_path[], int path_size, int *burst);
-void tsp_aux(int path[], int path_size, int available[],
-             double distance_m[N_OF_CS-1][N_OF_CS],
-             int best_path[], double *best_length);
-
+void master_routine(Message *message_ptr, int best_path[],
+                    int path_size, int *burst);
+void tsp(int path[], int path_size, int available[]);
+void thread_setup(int path[], int path_size, int available[]);
+int slave_routine(Message *msg_ptr);
