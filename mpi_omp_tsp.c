@@ -6,7 +6,7 @@
 #include "mpi.h"
 #include "tsp_mpi_headers.h"
 
-#define OMP_THREADS 16
+#define OMP_THREADS 7
 
 //These define tags for mpi communication
 #define WORK	1
@@ -239,6 +239,7 @@ int main(int argc, char **argv) {
 	cities[4].name = "e"; cities[4].x = 110; cities[4].y = 57;
 	cities[5].name = "f"; cities[5].x = 790; cities[5].y = 166;
 	cities[6].name = "g"; cities[6].x = 600; cities[6].y = 532;
+	/*
 	cities[7].name = "h"; cities[7].x = 398; cities[7].y = 40;
 	cities[8].name = "i"; cities[8].x = 83; cities[8].y = 720;
 	cities[9].name = "j"; cities[9].x = 829; cities[9].y = 627;
@@ -247,7 +248,8 @@ int main(int argc, char **argv) {
 	cities[12].name = "m"; cities[12].x = 710; cities[12].y = 266;
 	cities[13].name = "n"; cities[13].x = 33; cities[13].y = 680;
 	//cities[14].name = "o"; cities[14].x = 672; cities[14].y = 415;
-	//print_cities(cities);
+	*/
+	
 	//Creates and fills a distance table with distances between all cities
     double distance_m[N_OF_CS][N_OF_CS];
     fill_distance_m(distance_m, cities);
