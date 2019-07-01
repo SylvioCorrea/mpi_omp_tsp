@@ -98,7 +98,8 @@ void tsp(int path[], int path_size, int available[]) {
         int th_id = omp_get_thread_num();
         double path_length = calc_length(path, distance_m);
         if(path_length < best_lengths[th_id]) {
-            printf("(%d) found length %.2f", th_id, path_length);
+            printf("(%d) found length %.2f\n(%d) ", th_id, path_length, th_id);
+            print_int_arr(path);
             //Update best path and length for this thread
             best_lengths[th_id] = path_length;
             copy_path(path, &(best_paths[th_id][0]));
@@ -263,7 +264,6 @@ int main(int argc, char **argv) {
 	*/
 	
 	//Creates and fills a distance table with distances between all cities
-    double distance_m[N_OF_CS][N_OF_CS];
     fill_distance_m(distance_m, cities);
     
     
