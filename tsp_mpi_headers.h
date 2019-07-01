@@ -2,12 +2,12 @@
 #include <stdlib.h>
 
 //Defines the number of cities to be used in the problem
-#define N_OF_CS 5
+#define N_OF_CS 14
 
 //Defines the amount of cities an MPI slave will be required to perform permutations on
-#define MPI_GRAIN	4
+#define MPI_GRAIN	11
 //Defines the number of cities an OMP thread will be required to perform permutations on
-#define OMP_GRAIN   3
+#define OMP_GRAIN   9
 
 typedef struct {
     char *name;

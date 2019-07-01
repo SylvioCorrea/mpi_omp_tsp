@@ -6,7 +6,7 @@
 #include "mpi.h"
 #include "tsp_mpi_headers.h"
 
-#define OMP_THREADS 5
+#define OMP_THREADS 16
 
 //These define tags for mpi communication
 #define WORK	1
@@ -98,15 +98,15 @@ void tsp(int path[], int path_size, int available[]) {
         int th_id = omp_get_thread_num();
         double path_length = calc_length(path, distance_m);
         if(path_length < best_lengths[th_id]) {
-            printf("(%d) found length %.2f\n(%d) ", th_id, path_length, th_id);
-            print_int_arr(path);
+            //printf("(%d) found length %.2f\n(%d) ", th_id, path_length, th_id);
+            //print_int_arr(path);
             //Update best path and length for this thread
             best_lengths[th_id] = path_length;
             copy_path(path, &(best_paths[th_id][0]));
         }
     } else {
         int i;
-        printf("(%d) else\n", omp_get_thread_num());
+        //printf("(%d) else\n", omp_get_thread_num());
         //Finds the next city from the list of
         //cities which haven't been visited yet
         for(i=0; i<N_OF_CS; i++) {
@@ -140,7 +140,7 @@ void thread_setup(int path[], int path_size, int available[]) {
         //Let another thread finish this job.
         #pragma omp task firstprivate(copy_avail, path_copy)
         {
-            printf("[%d] starting thread (%d)\n", my_rank, omp_get_thread_num());
+            //printf("[%d] starting thread (%d)\n", my_rank, omp_get_thread_num());
             tsp(path_copy, path_size, copy_avail);
         }
     } else {
@@ -170,7 +170,7 @@ void thread_setup(int path[], int path_size, int available[]) {
 //buffer and resturns 1. Otherwise returns 0.
 int slave_routine(Message *msg_ptr) {
     //Mark all unavailable cities
-	printf("[%d] slave routine start\n", my_rank);
+	//printf("[%d] slave routine start\n", my_rank);
 	int i;
 	for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
 	    available[msg_ptr->path[i]] = 0;
@@ -179,7 +179,7 @@ int slave_routine(Message *msg_ptr) {
 	for(i=0; i<OMP_THREADS; i++) {
 	    best_lengths[i] = msg_ptr->best_length;
 	}
-	print_debug();
+	//print_debug();
 	//int path_copy[N_OF_CS];
 	//copy_path(msg_ptr->path, path_copy);
 	
@@ -190,7 +190,7 @@ int slave_routine(Message *msg_ptr) {
 	    {
 	        thread_setup(msg_ptr->path, N_OF_CS - MPI_GRAIN, available);
 	    
-	        print_debug();
+	        //print_debug();
 	        //Cities already on the path were not marked as available again
 	        //during tsp_aux recursion. This must be corrected here.
 	        for(i=0; i<N_OF_CS-MPI_GRAIN; i++) {
@@ -198,19 +198,19 @@ int slave_routine(Message *msg_ptr) {
 	        }
 	    }
 	}//All threads done.
-	print_debug();
+	//print_debug();
 	//Check results of each thread.
 	int best = -1;
 	for(i=0; i<OMP_THREADS; i++) {
-        printf("%d: %f\n", i, best_lengths[i]);
+        //printf("%d: %f\n", i, best_lengths[i]);
         if(best_lengths[i] < msg_ptr->best_length) {
             //Found a better result.
             best = i;
             msg_ptr->best_length = best_lengths[i];
         }
     }
-    print_debug();
-    printf("best thread: %d\n", best);
+    //print_debug();
+    //printf("best thread: %d\n", best);
     if(best!=-1) {
         //Store best path if found.
         copy_path(&(best_paths[best][0]), msg_ptr->path);
@@ -252,7 +252,6 @@ int main(int argc, char **argv) {
 	cities[2].name = "c"; cities[2].x = 176; cities[2].y = 386;
 	cities[3].name = "d"; cities[3].x = 472; cities[3].y = 1000;
 	cities[4].name = "e"; cities[4].x = 110; cities[4].y = 57;
-	/*
 	cities[5].name = "f"; cities[5].x = 790; cities[5].y = 166;
 	cities[6].name = "g"; cities[6].x = 600; cities[6].y = 532;
 	cities[7].name = "h"; cities[7].x = 398; cities[7].y = 40;
@@ -263,7 +262,7 @@ int main(int argc, char **argv) {
 	cities[12].name = "m"; cities[12].x = 710; cities[12].y = 266;
 	cities[13].name = "n"; cities[13].x = 33; cities[13].y = 680;
 	//cities[14].name = "o"; cities[14].x = 672; cities[14].y = 415;
-	*/
+	
 	
 	//Creates and fills a distance table with distances between all cities
     fill_distance_m(distance_m, cities);
