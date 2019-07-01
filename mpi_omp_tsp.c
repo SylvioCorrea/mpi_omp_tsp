@@ -226,7 +226,6 @@ int main(int argc, char **argv) {
     //Mark all cities as available.
     for(i=0; i<N_OF_CS; i++) {
         message.path[i] = -1;
-        best_path[i] = -1;
         available[i] = 1;
     }
     message.best_length = DBL_MAX;
@@ -265,6 +264,9 @@ int main(int argc, char **argv) {
 	    t1 = MPI_Wtime();  // inicia a contagem do tempo
 	
 	    int best_path[N_OF_CS];
+	    for(i=0; i<N_OF_CS; i++) {
+            best_path[i] = -1;
+        }
 	    //Computation starts defining city 0 as starting city
         message.path[0] = 0;
         //The city is marked as unavailable.
