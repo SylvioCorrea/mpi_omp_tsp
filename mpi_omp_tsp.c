@@ -202,6 +202,7 @@ int slave_routine(Message *msg_ptr) {
 	//Check results of each thread.
 	int best = -1;
 	for(i=0; i<OMP_THREADS; i++) {
+        printf("%d: %f\n", i, best_lengths[i]);
         if(best_lengths[i] < msg_ptr->best_length) {
             //Found a better result.
             best = i;
